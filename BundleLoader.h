@@ -18,8 +18,8 @@
 
 =============================================================================*/
 
-#ifndef __US_TEST_DRIVER__BUNDLELOADER_H_
-#define __US_TEST_DRIVER__BUNDLELOADER_H_
+#ifndef BUNDLELOADER_H_
+#define BUNDLELOADER_H_
 
 #include "usConfig.h"
 
@@ -46,10 +46,6 @@
 
 US_USE_NAMESPACE
 
-namespace us {
-namespace test {
-namespace driver {
-
 class BundleLoader {
 private:
 	/* module path -> lib handle */
@@ -73,8 +69,4 @@ public:
 	void unload(const long int id);
 };
 
-} /* namespace driver */
-} /* namespace test */
-} /* namespace us */
-
-#endif /* __US_TEST_DRIVER__BUNDLELOADER_H_ */
+#endif /* BUNDLELOADER_H_ */

@@ -20,10 +20,6 @@
 
 #include "BundleLoader.h"
 
-namespace us {
-namespace test {
-namespace driver {
-
 BundleLoader::BundleLoader() {
 }
 
@@ -64,7 +60,3 @@ void BundleLoader::unload(const long int id) {
 		throw std::invalid_argument(std::string("Error: unknown bundle id: ") + idString);
 	}
 }
-
-} /* namespace driver */
-} /* namespace test */
-} /* namespace us */
