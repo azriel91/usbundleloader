@@ -40,9 +40,9 @@
 #include <cstdio>
 #include <stdexcept>
 
-#include <azriel/cppmicroservices/include/usModule.h>
-#include <azriel/cppmicroservices/include/usModuleRegistry.h>
-#include <azriel/cppmicroservices/include/usSharedLibrary.h>
+#include <azriel/cppmicroservices/src/module/usModule.h>
+#include <azriel/cppmicroservices/src/module/usModuleRegistry.h>
+#include <azriel/cppmicroservices/src/util/usSharedLibrary.h>
 
 US_USE_NAMESPACE
 
