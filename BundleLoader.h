@@ -21,7 +21,7 @@
 #ifndef BUNDLELOADER_H_
 #define BUNDLELOADER_H_
 
-#include "usConfig.h"
+#include "usGlobalConfig.h"
 
 #if defined(US_PLATFORM_POSIX)
 	#include <dlfcn.h>
@@ -40,9 +40,9 @@
 #include <cstdio>
 #include <stdexcept>
 
-#include <azriel/cppmicroservices/src/module/usModule.h>
-#include <azriel/cppmicroservices/src/module/usModuleRegistry.h>
-#include <azriel/cppmicroservices/src/util/usSharedLibrary.h>
+#include <usModule.h>
+#include <usModuleRegistry.h>
+#include <usSharedLibrary.h>
 
 US_USE_NAMESPACE
 
