@@ -21,7 +21,7 @@
 #ifndef BUNDLELOADER_H_
 #define BUNDLELOADER_H_
 
-#include "usGlobalConfig.h"
+#include "azriel/cppmicroservices/core/include/usConfig.h"
 
 #if defined(US_PLATFORM_POSIX)
 	#include <dlfcn.h>
