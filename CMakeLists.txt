@@ -11,8 +11,14 @@ include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
 # Initializes block variables
 INIT_BIICODE_BLOCK()
 
-# Depend on cppmicroservices block
-set(BII_LIB_DEPS azriel_cppmicroservices)
+set(BII_LIB_SRC BundleLoader.h
+                BundleLoader.cpp)
 
 # Actually create targets: EXEcutables and libraries.
 ADD_BIICODE_TARGETS()
+
+# Only add tests if they exist.
+# Typically dependent blocks will not depend on test code and so it would not be downloaded
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+  add_subdirectory(test)
+endif()

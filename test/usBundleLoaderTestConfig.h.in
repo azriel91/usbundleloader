@@ -1,0 +1,40 @@
+/*=============================================================================
+
+	Library: CppMicroServices
+
+	Copyright (c) German Cancer Research Center,
+		Division of Medical and Biological Informatics
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+
+=============================================================================*/
+
+#ifndef USBUNDLELOADERTESTCONFIG_H
+#define USBUNDLELOADERTESTCONFIG_H
+
+#include <string>
+
+#include "usConfig.h"
+
+#ifdef US_PLATFORM_POSIX
+#define PATH_SEPARATOR "/"
+#else
+#define PATH_SEPARATOR "\\"
+#endif
+
+#define TEST_MODULES_DIR "@CMAKE_CURRENT_BINARY_DIR_NATIVE@" PATH_SEPARATOR "modules" PATH_SEPARATOR
+#define MODULE_ONE_LIB_NAME "@CMAKE_SHARED_LIBRARY_PREFIX@TestModuleOne@CMAKE_SHARED_LIBRARY_SUFFIX@"
+
+static const std::string MODULE_ONE_LIB_PATH = TEST_MODULES_DIR + std::string("testModuleOne") + PATH_SEPARATOR + MODULE_ONE_LIB_NAME;
+
+#endif // USBUNDLELOADERTESTCONFIG_H
