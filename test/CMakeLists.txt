@@ -12,7 +12,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/usBundleLoaderTestConfig.h.in
 
 # add custom target so that the test executable is rebuilt when the config header is regenerated
 add_custom_target(usBundleLoaderTestConfigTarget DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/usBundleLoaderTestConfig.h)
-add_dependencies(${BII_test_main_TARGET} usBundleLoaderTestConfigTarget)
+add_dependencies(${BII_test_main_TARGET} usBundleLoaderTestConfigTarget TestModuleOne)
 
 target_include_directories(${BII_test_main_TARGET} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 

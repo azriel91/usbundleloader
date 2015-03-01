@@ -6,19 +6,19 @@ project(usBundleLoader)
 
 cmake_minimum_required(VERSION 2.8)
 
-include(${CMAKE_HOME_DIRECTORY}/biicode.cmake)
-
 # Initializes block variables
 INIT_BIICODE_BLOCK()
 
 set(BII_LIB_SRC BundleLoader.h
                 BundleLoader.cpp)
 
-# Actually create targets: EXEcutables and libraries.
+set(BII_test_main_SRC test/main.cpp)
+
+# Actually create targets: executables and libraries.
 ADD_BIICODE_TARGETS()
 
 # Only add tests if they exist.
 # Typically dependent blocks will not depend on test code and so it would not be downloaded
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test")
+if(BII_BLOCK_PREFIX MATCHES "^blocks$")
   add_subdirectory(test)
 endif()
