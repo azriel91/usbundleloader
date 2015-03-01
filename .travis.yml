@@ -41,8 +41,8 @@ script:
 - cd /tmp
 - bii init bii
 - mkdir -p ./bii/blocks/$USER/$BLOCK_NAME
-- mv !(bii) ./bii/blocks/$USER/$BLOCK_NAME
-- cd bii
+- cd ./bii
+- shopt -s dotglob && mv $TRAVIS_BUILD_DIR/* ./blocks/$USER/$BLOCK_NAME/
 - bii find
 - bii cpp:build
 - cd build
