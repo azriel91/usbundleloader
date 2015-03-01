@@ -49,8 +49,8 @@ script:
 - shopt -s dotglob && mv $TRAVIS_BUILD_DIR/* ./blocks/$USER/$BLOCK_NAME/
 - bii find
 - bii cpp:build
-- cd build
-- make test
+- cd bin
+- valgrind --leak-check=full "./${USER}_${BLOCK_NAME}_test_main"
 
 after_success:
   # Publish block
