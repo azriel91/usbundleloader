@@ -20,22 +20,23 @@
 
 #include "BundleLoader.h"
 
-BundleLoader::BundleLoader() {
+BundleLoader::BundleLoader() : libraryHandles(new std::map<const std::string, SharedLibrary>()) {
 }
 
 BundleLoader::~BundleLoader() {
+	delete this->libraryHandles;
 }
 
 void BundleLoader::load(const std::string libraryPath) {
-	std::map<const std::string, SharedLibrary>::const_iterator libIter = this->libraryHandles.find(libraryPath);
+	std::map<const std::string, SharedLibrary>::const_iterator libIter = this->libraryHandles->find(libraryPath);
 
-	if (libIter != this->libraryHandles.end()) {
+	if (libIter != this->libraryHandles->end()) {
 		SharedLibrary libHandle = libIter->second;
 		libHandle.Load();
 	} else {
 		SharedLibrary libHandle(libraryPath);
 		libHandle.Load();
-		this->libraryHandles.insert(std::make_pair(libraryPath, libHandle));
+		this->libraryHandles->insert(std::make_pair(libraryPath, libHandle));
 	}
 }
 
@@ -43,8 +44,8 @@ void BundleLoader::unload(const long int id) {
 	Module* const module = ModuleRegistry::GetModule(id);
 	if (module) {
 		std::map<std::string, SharedLibrary>::iterator libIter =
-				this->libraryHandles.find(module->GetLocation());
-		if (libIter == this->libraryHandles.end()) {
+				this->libraryHandles->find(module->GetLocation());
+		if (libIter == this->libraryHandles->end()) {
 			std::cout << "Info: Unloading not possible. The module was loaded by a dependent module." << std::endl;
 		} else {
 			libIter->second.Unload();

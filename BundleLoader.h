@@ -25,12 +25,14 @@
 
 #if defined(US_PLATFORM_POSIX)
 	#include <dlfcn.h>
+	#define DLL_EXPORT
 #elif defined(US_PLATFORM_WINDOWS)
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
 	#include <strsafe.h>
+	#define DLL_EXPORT __declspec(dllexport)
 #else
 	#error Unsupported platform
 #endif
@@ -46,10 +48,15 @@
 
 US_USE_NAMESPACE
 
-class BundleLoader {
+class DLL_EXPORT BundleLoader {
 private:
-	/* module path -> lib handle */
-	std::map<const std::string, SharedLibrary> libraryHandles;
+	/**
+	 * module path -> lib handle
+	 *
+	 * This has to be a pointer to allow the shared library (.lib) descriptors to be built on windows.
+	 * See http://forum.biicode.com/t/solved-lib-file-not-generated-for-test-dependency/358
+	 */
+	std::map<const std::string, SharedLibrary>* libraryHandles;
 
 public:
 	BundleLoader();
