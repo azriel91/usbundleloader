@@ -18,11 +18,3 @@ build_script:
 test_script:
 - cmd: cd bin
 - cmd: azriel_usbundleloader_test_main.exe
-
-environment:
-  project_name:
-    "bii-usbundleloader"
-  block_user:
-    "azriel"
-  block_name:
-    "usbundleloader"
