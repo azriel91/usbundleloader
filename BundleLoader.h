@@ -25,14 +25,12 @@
 
 #if defined(US_PLATFORM_POSIX)
 	#include <dlfcn.h>
-	#define DLL_EXPORT
 #elif defined(US_PLATFORM_WINDOWS)
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
 	#include <windows.h>
 	#include <strsafe.h>
-	#define DLL_EXPORT __declspec(dllexport)
 #else
 	#error Unsupported platform
 #endif
@@ -48,7 +46,7 @@
 
 US_USE_NAMESPACE
 
-class DLL_EXPORT BundleLoader {
+class US_ABI_EXPORT BundleLoader {
 private:
 	/**
 	 * module path -> lib handle
