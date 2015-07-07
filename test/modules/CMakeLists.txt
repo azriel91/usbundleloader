@@ -7,7 +7,4 @@ else()
   message(FATAL_ERROR "azriel/cppmicroservices isn't in your project/deps folder")
 endif()
 
-set(US_BUILD_SHARED_LIBS ON)
-set(BUILD_SHARED_LIBS ON)
-
 add_subdirectory(testModuleOne)

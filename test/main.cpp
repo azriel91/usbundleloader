@@ -22,16 +22,30 @@
 #include <azriel/cppmicroservices/core/include/usModule.h>
 #include <azriel/cppmicroservices/core/include/usModuleRegistry.h>
 #include <google/gtest/gtest.h>
+#include <cstdio>
+#include <string>
 
-#include "BundleLoader.h"
 #include "usBundleLoaderTestConfig.h"
+
+#ifdef US_BUILD_SHARED_LIBS
+	#include "../BundleLoader.h"
+#else
+	#include <azriel/cppmicroservices/core/include/usModuleImport.h>
+	US_IMPORT_MODULE(CppMicroServices)
+	US_IMPORT_MODULE(TestModuleOne)
+	US_INITIALIZE_STATIC_MODULE(main)
+#endif
 
 US_USE_NAMESPACE
 
 TEST(usBundleLoader, LoadsBundles) {
 	try {
+#ifdef US_BUILD_SHARED_LIBS
 		BundleLoader bundleLoader;
+
+		printf("Loading: '%s'\n", MODULE_ONE_LIB_PATH.c_str());
 		bundleLoader.load(MODULE_ONE_LIB_PATH);
+#endif
 
 		EXPECT_TRUE(ModuleRegistry::GetModule("TestModuleOne") != NULL);
 	} catch (const std::exception& e) {
