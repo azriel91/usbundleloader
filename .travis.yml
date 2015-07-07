@@ -74,3 +74,6 @@ env:
   - secure: "Ti6S0ZrXRZAbavhwoaK8JXJ5BzZ5GEckFaaDjFxhOcg+LvxMaAO9w/l38jOUimQ94U+kg73ccuh2ZZgSu8MMNjEDefVb855BCl+kzmTW7QQ61mMCq5WE51kiTFug56WVXgvh1oarSRkdeOM9dS0I3MOJIFQt2dQvIcwGpAqBOto="
   # GITHUB_TOKEN
   - secure: frR/+26mnj9huz8aEY+Z8djcoEyi0a+0u5QylGOagY9wvk64WGyRMykoPCHADa4nBA5ymNt+xBmcFCZkNY/TBPWGaB23aIbGoXWDE0tvqAnToTcm+rWlLdfj3akLhmZBRc8rGm+QJbuoVw/KCfbxR5xzlz0UuDCA2CY3dy4UwkI=
+  matrix:
+  - BUILD_SHARED_LIBS=OFF
+  - BUILD_SHARED_LIBS=ON
