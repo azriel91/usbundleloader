@@ -1,73 +1,32 @@
+sudo: required
+
 language: cpp
 compiler:
 - gcc
 - clang
 
 before_install:
-  # Don't build if the last commit was from travis
-- export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
-- if [[ "$TRAVIS_COMMIT_MSG" = "$COMMIT_IGNORE_BUILD" ]]; then exit 0 ; fi
-
-  # Configure git
-- git config --global user.email "$USER_EMAIL"
-- git config --global user.name "$USER_NAME"
-- git config --global push.default simple
 - git checkout $TRAVIS_BRANCH
 
+- if [ $(bii-support/travis/git/is_last_commit_travis.sh) = "true" ] ; then exit 0 ; fi
+- bii-support/travis/git/configure.sh
+
 install:
-- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-- sudo apt-get update -qq
-
-  # Install valgrind
-- sudo apt-get install -qq valgrind
-
-  # Install g++
-- if [ "$CXX" = "g++" ]; then
-    sudo apt-get install -qq g++-4.8;
-    export CXX="g++-4.8" CC="gcc-4.8";
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90;
-  fi
-
-  # Install Biicode
-- wget -O bii-ubuntu64.deb http://www.biicode.com/downloads/latest/ubuntu64
-- "(sudo dpkg -i bii-ubuntu64.deb) && sudo apt-get -f install"
-- bii --version
-- rm bii-ubuntu64.deb
-
-  # Install CMake
-- wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-Linux-64.tar.gz
-- tar -xzf cmake-3.0.2-Linux-64.tar.gz
-- sudo cp -fR cmake-3.0.2-Linux-64/* /usr
-- rm -rf cmake-3.0.2-Linux-64
-- rm cmake-3.0.2-Linux-64.tar.gz
+- bii-support/travis/install/all-headless.sh
 
 - export TRAVIS_CXX=$CXX
 
 script:
-- bii buzz
+- bii-support/linux/build/default.sh
 - valgrind --leak-check=full "bin/${USER}_${BLOCK_NAME}_test_main"
 
 after_success:
-  # Publish block
-- bii user $USER -p $BII_PASSWORD
-- bii --version
-- if [[ -n $TRAVIS_TAG ]]; then bii publish -r --tag STABLE --versiontag $TRAVIS_TAG; fi
-- if [[ -z $TRAVIS_TAG ]]; then bii publish -r; fi
-
-  # If there are changes, commit them
-- git config credential.helper "store --file=.git/credentials" 
-- echo "https://${GITHUB_TOKEN}:@github.com" > .git/credentials
-- git add -A .
-- git commit -m "$COMMIT_IGNORE_BUILD" 
-- git remote -v
-- git remote set-url origin https://github.com/$TRAVIS_REPO_SLUG.git 
-- git push
+- bii-support/travis/publish/biicode.sh
 
 env:
   global:
   - USER_EMAIL=azriel91@gmail.com
   - USER_NAME="azriel"
-  - COMMIT_IGNORE_BUILD="Promoted version. ***travis***"
   - BLOCK_NAME=usbundleloader
   - USER=azriel
   # BII_PASSWORD
