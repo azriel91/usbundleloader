@@ -18,7 +18,7 @@ install:
 
 script:
 - bii-support/linux/build/default.sh
-- valgrind --leak-check=full "bin/${USER}_${BLOCK_NAME}_test_main"
+- valgrind --leak-check=full "bin/${BII_USER}_${BLOCK_NAME}_test_main"
 
 after_success:
 - bii-support/travis/publish/biicode.sh
@@ -28,7 +28,7 @@ env:
   - USER_EMAIL=azriel91@gmail.com
   - USER_NAME="azriel"
   - BLOCK_NAME=usbundleloader
-  - USER=azriel
+  - BII_USER=azriel
   # BII_PASSWORD
   - secure: "Ti6S0ZrXRZAbavhwoaK8JXJ5BzZ5GEckFaaDjFxhOcg+LvxMaAO9w/l38jOUimQ94U+kg73ccuh2ZZgSu8MMNjEDefVb855BCl+kzmTW7QQ61mMCq5WE51kiTFug56WVXgvh1oarSRkdeOM9dS0I3MOJIFQt2dQvIcwGpAqBOto="
   # GITHUB_TOKEN
