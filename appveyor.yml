@@ -1,31 +1,16 @@
 install:
-  # Install biicode
-- cmd: echo "Downloading biicode..."
-- ps: wget http://www.biicode.com/downloads/latest/win -OutFile bii-win.exe
-- cmd: bii-win.exe /VERYSILENT
-- cmd: set PATH=%PATH%;C:\Program Files (x86)\BiiCode\bii
-- cmd: bii --version
-- cmd: del bii-win.exe
-
-  # Install CMake
-- ps: wget https://s3.amazonaws.com/biibinaries/thirdparty/cmake-3.0.2-win32-x86.zip -OutFile cmake.zip
-- cmd: echo "Unzipping cmake..."
-- cmd: 7z x cmake.zip -o"C:\Program Files (x86)\" -y > nul
-- cmd: set PATH=%PATH:CMake 2.8\bin=%;C:\Program Files (x86)\cmake-3.0.2-win32-x86\bin
-- cmd: cmake --version
-- cmd: del cmake.zip
+- cmd: git submodule update --init --recursive
+- cmd: bii-support\appveyor\install\all-headless.bat
 
 build_script:
-- cmd: bii init -l
-- cmd: bii configure -G "Visual Studio 12 2013" -DBUILD_SHARED_LIBS=%BUILD_SHARED_LIBS%
-- cmd: bii build
+- cmd: bii-support\windows\build\default.bat
 
 test_script:
-- cmd: bin\%USER%_%BLOCK_NAME%_test_main.exe
+- cmd: bin\%BII_USER%_%BLOCK_NAME%_test_main.exe
 
 environment:
   BLOCK_NAME: usbundleloader
-  USER: azriel
+  BII_USER: azriel
 
   matrix:
   - BUILD_SHARED_LIBS: OFF
