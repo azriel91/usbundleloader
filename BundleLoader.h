@@ -44,48 +44,50 @@
 
 class USBUNDLELOADER_EXPORT BundleLoader {
 private:
+	static const std::string DIR_SEP;
+	static const std::string EXE_EXT;
+	static const std::string LIB_EXT;
+	static const std::string LIB_PREFIX;
+
 	/**
 	 * The bundle context of the CppMicroServices framework to use when installing additional bundles.
 	 */
 	us::BundleContext* const frameworkBundleContext;
 	/**
-	 * The path to the running executable, from which to load bundles that have been statically linked.
+	 * If building statically, the path to the running executable from which to load bundles that have been statically
+	 * linked.
+	 *
+	 * If building dynamically, the path to the library directory from which to load bundles from.
 	 */
-	const std::string executablePath;
+	const std::string libraryPath;
 
 public:
-#ifdef US_BUILD_SHARED_LIBS
 	/**
-	 * Construct a BundleLoader for shared library linking.
+	 * Construct a BundleLoader.
 	 *
 	 * @param frameworkBundleContext the bundle context of the CppMicroServices framework
-	 * @param executablePath the path to the running executable
+	 * @param libraryPath the path to the running executable if building statically, or to the shared library directory
+	 *                    if building shared library bundles.
 	 */
-	BundleLoader(us::BundleContext* frameworkBundleContext);
-#else
-	/**
-	 * Construct a BundleLoader for static library linking.
-	 *
-	 * @param frameworkBundleContext the bundle context of the CppMicroServices framework
-	 * @param executablePath the path to the running executable
-	 */
-	BundleLoader(us::BundleContext* frameworkBundleContext, const std::string executablePath);
-#endif
+	BundleLoader(us::BundleContext* frameworkBundleContext, const std::string libraryPath);
 	virtual ~BundleLoader();
 
 	/**
-	 * Load the bundle that has been statically compiled into the running executable.
+	 * Load the bundle of the given name.
+	 *
+	 * If building static bundles, this loads the bundle that has been statically compiled into the running executable.
+	 * If building shared bundles, this loads the bundle from the libraryDirectory.
 	 *
 	 * @param bundleName the name of the bundle to load
 	 */
 	us::Bundle* Load(const std::string bundleName);
 	/**
-	 * Load the bundle for the given shared library.
+	 * Load the bundle of the given name, from the specified path. The path may be to an executable or a shared library.
 	 *
 	 * @param bundleName the name of the bundle to load
-	 * @param libraryPath the path to the bundle library
+	 * @param bundleFilePath the path to the bundle executable or library
 	 */
-	us::Bundle* Load(const std::string bundleName, const std::string libraryPath);
+	us::Bundle* Load(const std::string bundleName, const std::string bundleFilePath);
 	/**
 	 * Unloads the given bundle.
 	 *

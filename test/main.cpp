@@ -44,12 +44,7 @@ BundleLoader* bundleLoader = nullptr;
 
 TEST(UsBundleLoader, LoadsBundles) {
 	try {
-#ifdef US_BUILD_SHARED_LIBS
-		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
-		bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
-#else
 		bundleLoader->Load("TestBundleOne");
-#endif
 
 		us::BundleContext* const bundleContext = us::GetBundleContext();
 		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") != nullptr);
@@ -83,7 +78,7 @@ int main(int argc, char **argv) {
 	framework->Start();
 
 #ifdef US_BUILD_SHARED_LIBS
-	bundleLoader = new BundleLoader(framework->GetBundleContext());
+	bundleLoader = new BundleLoader(framework->GetBundleContext(), TEST_BUNDLE_ONE_PREFIX);
 	bundleLoader->Load(std::string("main"), std::string(argv[0]));
 #else
 	bundleLoader = new BundleLoader(framework->GetBundleContext(), std::string(argv[0]));

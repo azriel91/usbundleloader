@@ -23,29 +23,41 @@
 
 #include "BundleLoader.h"
 
-#ifdef US_BUILD_SHARED_LIBS
-BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext) :
-		frameworkBundleContext(frameworkBundleContext),
-		executablePath(std::string()) {
-}
-
+#ifdef US_PLATFORM_WINDOWS
+	const std::string BundleLoader::DIR_SEP = "\\";
+	const std::string BundleLoader::EXE_EXT = ".exe";
+	const std::string BundleLoader::LIB_PREFIX = "";
+	const std::string BundleLoader::LIB_EXT = ".dll";
 #else
-
-BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext, const std::string executablePath) :
-		frameworkBundleContext(frameworkBundleContext),
-		executablePath(executablePath) {
-}
+	const std::string BundleLoader::DIR_SEP = "/";
+	const std::string BundleLoader::EXE_EXT = "";
+	const std::string BundleLoader::LIB_PREFIX = "lib";
+	#if defined US_PLATFORM_APPLE
+		const std::string BundleLoader::LIB_EXT = ".dylib";
+	#else
+		const std::string BundleLoader::LIB_EXT = ".so";
+	#endif
 #endif
+
+BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext, const std::string libraryPath) :
+		frameworkBundleContext(frameworkBundleContext),
+		libraryPath(libraryPath) {
+}
 
 BundleLoader::~BundleLoader() {
 }
 
 us::Bundle* BundleLoader::Load(const std::string bundleName) {
-	return Load(bundleName, this->executablePath);
+#ifdef US_BUILD_SHARED_LIBS
+	return Load(bundleName, this->libraryPath + BundleLoader::DIR_SEP + BundleLoader::LIB_PREFIX + bundleName +
+			BundleLoader::LIB_EXT);
+#else
+	return Load(bundleName, this->libraryPath);
+#endif
 }
 
-us::Bundle* BundleLoader::Load(const std::string bundleName, const std::string libraryPath) {
-	us::Bundle* bundle = frameworkBundleContext->InstallBundle(libraryPath + "/" + bundleName);
+us::Bundle* BundleLoader::Load(const std::string bundleName, const std::string bundleFilePath) {
+	us::Bundle* bundle = frameworkBundleContext->InstallBundle(bundleFilePath + "/" + bundleName);
 	bundle->Start();
 	return bundle;
 }
