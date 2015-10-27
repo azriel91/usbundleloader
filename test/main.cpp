@@ -31,33 +31,45 @@
 #include <usGetBundleContext.h>
 
 #include "usBundleLoaderTestConfig.h"
+#include "../BundleLoader.h"
 
-#ifdef US_BUILD_SHARED_LIBS
-	#include "../BundleLoader.h"
-#else
+#ifndef US_BUILD_SHARED_LIBS
 	#include <usBundleImport.h>
 	US_IMPORT_BUNDLE(CppMicroServices)
 	US_IMPORT_BUNDLE(TestBundleOne)
 	US_IMPORT_BUNDLE(main)
 #endif
 
+BundleLoader* bundleLoader = nullptr;
+
 TEST(UsBundleLoader, LoadsBundles) {
 	try {
-		us::BundleContext* bundleContext = us::GetBundleContext();
 #ifdef US_BUILD_SHARED_LIBS
-		BundleLoader bundleLoader;
-
 		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
-		// bundleLoader.load(BUNDLE_ONE_LIB_PATH);
-		bundleContext->InstallBundle(BUNDLE_ONE_LIB_PATH + "/TestBundleOne");
+		bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
+#else
+		bundleLoader->Load("TestBundleOne");
 #endif
-		std::vector<us::Bundle*> bundles = bundleContext->GetBundles();
-		for (us::Bundle* bundle : bundles) {
-			std::string name = bundle->GetName();
-			printf("%s\n", name.c_str());
-		}
 
-		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") != NULL);
+		us::BundleContext* const bundleContext = us::GetBundleContext();
+		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") != nullptr);
+	} catch (const std::exception& e) {
+		FAIL() << e.what();
+	}
+}
+
+TEST(UsBundleLoader, UnloadsBundles) {
+	try {
+#ifdef US_BUILD_SHARED_LIBS
+		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
+		us::Bundle* const bundle = bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
+#else
+		us::Bundle* const bundle = bundleLoader->Load("TestBundleOne");
+#endif
+		bundleLoader->Unload(bundle);
+
+		us::BundleContext* const bundleContext = us::GetBundleContext();
+		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") == nullptr);
 	} catch (const std::exception& e) {
 		FAIL() << e.what();
 	}
@@ -67,15 +79,16 @@ int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
 
 	us::FrameworkFactory factory;
-	us::Framework* framework = factory.NewFramework(std::map<std::string, std::string>());
+	us::Framework* const framework = factory.NewFramework(std::map<std::string, std::string>());
 	framework->Start();
 
-	us::BundleContext* frameworkBundleContext = framework->GetBundleContext();
-	us::Bundle* mainBundle = frameworkBundleContext->InstallBundle(std::string(argv[0]) + "/main");
-	mainBundle->Start();
-
-	us::Bundle* testBundleOne = frameworkBundleContext->InstallBundle(std::string(argv[0]) + "/TestBundleOne");
-	testBundleOne->Start();
+#ifdef US_BUILD_SHARED_LIBS
+	bundleLoader = new BundleLoader(framework->GetBundleContext());
+	bundleLoader->Load(std::string("main"), std::string(argv[0]));
+#else
+	bundleLoader = new BundleLoader(framework->GetBundleContext(), std::string(argv[0]));
+	bundleLoader->Load(std::string("main"));
+#endif
 
 	return RUN_ALL_TESTS();
 }

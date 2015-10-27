@@ -18,52 +18,39 @@
 
 =============================================================================*/
 
-#include <cstdio>
-#include <iostream>
-#include <stdexcept>
+#include <usBundle.h>
 #include <usBundleContext.h>
-#include <usGetBundleContext.h>
 
 #include "BundleLoader.h"
 
-BundleLoader::BundleLoader() : libraryHandles(new std::map<const std::string, us::SharedLibrary>()) {
+#ifdef US_BUILD_SHARED_LIBS
+BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext) :
+		frameworkBundleContext(frameworkBundleContext),
+		executablePath(std::string()) {
 }
+
+#else
+
+BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext, const std::string executablePath) :
+		frameworkBundleContext(frameworkBundleContext),
+		executablePath(executablePath) {
+}
+#endif
 
 BundleLoader::~BundleLoader() {
-	delete this->libraryHandles;
 }
 
-void BundleLoader::load(const std::string libraryPath) {
-	std::map<const std::string, us::SharedLibrary>::const_iterator libIter = this->libraryHandles->find(libraryPath);
-
-	if (libIter != this->libraryHandles->end()) {
-		us::SharedLibrary libHandle = libIter->second;
-		libHandle.Load();
-	} else {
-		us::SharedLibrary libHandle(libraryPath);
-		libHandle.Load();
-		this->libraryHandles->insert(std::make_pair(libraryPath, libHandle));
-	}
+us::Bundle* BundleLoader::Load(const std::string bundleName) {
+	return Load(bundleName, this->executablePath);
 }
 
-void BundleLoader::unload(const long int id) {
-	us::BundleContext* bundleContext = us::GetBundleContext();
-	us::Bundle* const bundle = bundleContext->GetBundle(id);
-	if (bundle) {
-		std::map<std::string, us::SharedLibrary>::iterator libIter = this->libraryHandles->find(bundle->GetLocation());
-		if (libIter == this->libraryHandles->end()) {
-			std::cout << "Info: Unloading not possible. The bundle was loaded by a dependent bundle." << std::endl;
-		} else {
-			libIter->second.Unload();
+us::Bundle* BundleLoader::Load(const std::string bundleName, const std::string libraryPath) {
+	us::Bundle* bundle = frameworkBundleContext->InstallBundle(libraryPath + "/" + bundleName);
+	bundle->Start();
+	return bundle;
+}
 
-			// Check if it has really been unloaded
-			if (bundle->IsStarted()) {
-				throw std::logic_error("Info: The bundle is still referenced by another loaded bundle. It will be unloaded when all dependent bundles are unloaded.");
-			}
-		}
-	} else {
-		char idString[64];
-		std::sprintf(idString, "%ld", id);
-		throw std::invalid_argument(std::string("Error: unknown bundle id: ") + idString);
-	}
+void BundleLoader::Unload(us::Bundle* bundle) {
+	bundle->Stop();
+	bundle->Uninstall();
 }

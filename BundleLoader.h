@@ -35,7 +35,6 @@
 	#error Unsupported platform
 #endif
 
-#include <map>
 #include <string>
 
 #include <usBundle.h>
@@ -43,34 +42,56 @@
 
 #include "usBundleLoader/Bundle.h"
 
-using namespace us;
-
 class USBUNDLELOADER_EXPORT BundleLoader {
 private:
 	/**
-	 * module path -> lib handle
-	 *
-	 * This has to be a pointer to allow the shared library (.lib) descriptors to be built on windows.
-	 * See http://forum.biicode.com/t/solved-lib-file-not-generated-for-test-dependency/358
+	 * The bundle context of the CppMicroServices framework to use when installing additional bundles.
 	 */
-	std::map<const std::string, SharedLibrary>* libraryHandles;
+	us::BundleContext* const frameworkBundleContext;
+	/**
+	 * The path to the running executable, from which to load bundles that have been statically linked.
+	 */
+	const std::string executablePath;
 
 public:
-	BundleLoader();
+#ifdef US_BUILD_SHARED_LIBS
+	/**
+	 * Construct a BundleLoader for shared library linking.
+	 *
+	 * @param frameworkBundleContext the bundle context of the CppMicroServices framework
+	 * @param executablePath the path to the running executable
+	 */
+	BundleLoader(us::BundleContext* frameworkBundleContext);
+#else
+	/**
+	 * Construct a BundleLoader for static library linking.
+	 *
+	 * @param frameworkBundleContext the bundle context of the CppMicroServices framework
+	 * @param executablePath the path to the running executable
+	 */
+	BundleLoader(us::BundleContext* frameworkBundleContext, const std::string executablePath);
+#endif
 	virtual ~BundleLoader();
 
 	/**
+	 * Load the bundle that has been statically compiled into the running executable.
+	 *
+	 * @param bundleName the name of the bundle to load
+	 */
+	us::Bundle* Load(const std::string bundleName);
+	/**
 	 * Load the bundle for the given shared library.
 	 *
+	 * @param bundleName the name of the bundle to load
 	 * @param libraryPath the path to the bundle library
 	 */
-	void load(const std::string libraryPath);
+	us::Bundle* Load(const std::string bundleName, const std::string libraryPath);
 	/**
-	 * Unload the bundle for the given bundle id.
+	 * Unloads the given bundle.
 	 *
-	 * @param id the id of the bundle to unload
+	 * @param bundle the bundle to unload
 	 */
-	void unload(const long int id);
+	void Unload(us::Bundle* bundle);
 };
 
 #endif /* BUNDLELOADER_H_ */
