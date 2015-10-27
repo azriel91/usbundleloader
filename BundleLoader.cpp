@@ -18,9 +18,15 @@
 
 =============================================================================*/
 
+#include <cstdio>
+#include <iostream>
+#include <stdexcept>
+#include <usBundleContext.h>
+#include <usGetBundleContext.h>
+
 #include "BundleLoader.h"
 
-BundleLoader::BundleLoader() : libraryHandles(new std::map<const std::string, SharedLibrary>()) {
+BundleLoader::BundleLoader() : libraryHandles(new std::map<const std::string, us::SharedLibrary>()) {
 }
 
 BundleLoader::~BundleLoader() {
@@ -28,31 +34,31 @@ BundleLoader::~BundleLoader() {
 }
 
 void BundleLoader::load(const std::string libraryPath) {
-	std::map<const std::string, SharedLibrary>::const_iterator libIter = this->libraryHandles->find(libraryPath);
+	std::map<const std::string, us::SharedLibrary>::const_iterator libIter = this->libraryHandles->find(libraryPath);
 
 	if (libIter != this->libraryHandles->end()) {
-		SharedLibrary libHandle = libIter->second;
+		us::SharedLibrary libHandle = libIter->second;
 		libHandle.Load();
 	} else {
-		SharedLibrary libHandle(libraryPath);
+		us::SharedLibrary libHandle(libraryPath);
 		libHandle.Load();
 		this->libraryHandles->insert(std::make_pair(libraryPath, libHandle));
 	}
 }
 
 void BundleLoader::unload(const long int id) {
-	Module* const module = ModuleRegistry::GetModule(id);
-	if (module) {
-		std::map<std::string, SharedLibrary>::iterator libIter =
-				this->libraryHandles->find(module->GetLocation());
+	us::BundleContext* bundleContext = us::GetBundleContext();
+	us::Bundle* const bundle = bundleContext->GetBundle(id);
+	if (bundle) {
+		std::map<std::string, us::SharedLibrary>::iterator libIter = this->libraryHandles->find(bundle->GetLocation());
 		if (libIter == this->libraryHandles->end()) {
-			std::cout << "Info: Unloading not possible. The module was loaded by a dependent module." << std::endl;
+			std::cout << "Info: Unloading not possible. The bundle was loaded by a dependent bundle." << std::endl;
 		} else {
 			libIter->second.Unload();
 
 			// Check if it has really been unloaded
-			if (module->IsLoaded()) {
-				throw std::logic_error("Info: The module is still referenced by another loaded module. It will be unloaded when all dependent modules are unloaded.");
+			if (bundle->IsStarted()) {
+				throw std::logic_error("Info: The bundle is still referenced by another loaded bundle. It will be unloaded when all dependent bundles are unloaded.");
 			}
 		}
 	} else {

@@ -21,7 +21,7 @@
 #ifndef BUNDLELOADER_H_
 #define BUNDLELOADER_H_
 
-#include <azriel/cppmicroservices/core/include/usConfig.h>
+#include <usCoreConfig.h>
 
 #if defined(US_PLATFORM_POSIX)
 	#include <dlfcn.h>
@@ -37,16 +37,15 @@
 
 #include <map>
 #include <string>
-#include <cstdio>
-#include <stdexcept>
 
-#include <azriel/cppmicroservices/core/include/usModule.h>
-#include <azriel/cppmicroservices/core/include/usModuleRegistry.h>
-#include <azriel/cppmicroservices/core/include/usSharedLibrary.h>
+#include <usBundle.h>
+#include <usSharedLibrary.h>
 
-US_USE_NAMESPACE
+#include "usBundleLoader/Bundle.h"
 
-class US_ABI_EXPORT BundleLoader {
+using namespace us;
+
+class USBUNDLELOADER_EXPORT BundleLoader {
 private:
 	/**
 	 * module path -> lib handle

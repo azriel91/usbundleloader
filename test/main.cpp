@@ -19,35 +19,45 @@
 
 =============================================================================*/
 
-#include <azriel/cppmicroservices/core/include/usModule.h>
-#include <azriel/cppmicroservices/core/include/usModuleRegistry.h>
-#include <google/gtest/gtest.h>
 #include <cstdio>
+#include <map>
 #include <string>
+#include <vector>
+#include <gtest/gtest.h>
+#include <usBundle.h>
+#include <usBundleContext.h>
+#include <usFramework.h>
+#include <usFrameworkFactory.h>
+#include <usGetBundleContext.h>
 
 #include "usBundleLoaderTestConfig.h"
 
 #ifdef US_BUILD_SHARED_LIBS
 	#include "../BundleLoader.h"
 #else
-	#include <azriel/cppmicroservices/core/include/usModuleImport.h>
-	US_IMPORT_MODULE(CppMicroServices)
-	US_IMPORT_MODULE(TestModuleOne)
-	US_INITIALIZE_STATIC_MODULE(main)
+	#include <usBundleImport.h>
+	US_IMPORT_BUNDLE(CppMicroServices)
+	US_IMPORT_BUNDLE(TestBundleOne)
+	US_IMPORT_BUNDLE(main)
 #endif
 
-US_USE_NAMESPACE
-
-TEST(usBundleLoader, LoadsBundles) {
+TEST(UsBundleLoader, LoadsBundles) {
 	try {
+		us::BundleContext* bundleContext = us::GetBundleContext();
 #ifdef US_BUILD_SHARED_LIBS
 		BundleLoader bundleLoader;
 
-		printf("Loading: '%s'\n", MODULE_ONE_LIB_PATH.c_str());
-		bundleLoader.load(MODULE_ONE_LIB_PATH);
+		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
+		// bundleLoader.load(BUNDLE_ONE_LIB_PATH);
+		bundleContext->InstallBundle(BUNDLE_ONE_LIB_PATH + "/TestBundleOne");
 #endif
+		std::vector<us::Bundle*> bundles = bundleContext->GetBundles();
+		for (us::Bundle* bundle : bundles) {
+			std::string name = bundle->GetName();
+			printf("%s\n", name.c_str());
+		}
 
-		EXPECT_TRUE(ModuleRegistry::GetModule("TestModuleOne") != NULL);
+		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") != NULL);
 	} catch (const std::exception& e) {
 		FAIL() << e.what();
 	}
@@ -55,5 +65,17 @@ TEST(usBundleLoader, LoadsBundles) {
 
 int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
+
+	us::FrameworkFactory factory;
+	us::Framework* framework = factory.NewFramework(std::map<std::string, std::string>());
+	framework->Start();
+
+	us::BundleContext* frameworkBundleContext = framework->GetBundleContext();
+	us::Bundle* mainBundle = frameworkBundleContext->InstallBundle(std::string(argv[0]) + "/main");
+	mainBundle->Start();
+
+	us::Bundle* testBundleOne = frameworkBundleContext->InstallBundle(std::string(argv[0]) + "/TestBundleOne");
+	testBundleOne->Start();
+
 	return RUN_ALL_TESTS();
 }
