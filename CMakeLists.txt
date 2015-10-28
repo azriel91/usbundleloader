@@ -24,4 +24,4 @@ sl_create_bundle(${PROJECT_NAME}
 sl_generate_and_include_bundle_header(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 
-sl_include_tests()
+sl_include_test_dir()
