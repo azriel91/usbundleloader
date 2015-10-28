@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	framework->Start();
 
 #ifdef US_BUILD_SHARED_LIBS
-	bundleLoader = new BundleLoader(framework->GetBundleContext(), TEST_BUNDLE_ONE_PREFIX);
+	bundleLoader = new BundleLoader(framework->GetBundleContext(), TEST_BUNDLE_ONE_DIR);
 	bundleLoader->Load(std::string("main"), std::string(argv[0]));
 #else
 	bundleLoader = new BundleLoader(framework->GetBundleContext(), std::string(argv[0]));
