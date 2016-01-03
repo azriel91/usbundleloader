@@ -4,9 +4,10 @@ import subprocess
 class usBundleLoaderConan(ConanFile):
     name = 'usBundleLoader'
     version = '0.1.0'
-    settings = ['os', 'compiler', 'build_type']
+    settings = ['os', 'compiler', 'build_type', 'arch']
     generators = ['cmake']
-    options = {'BUILD_SHARED_LIBS': 'OFF'}
+    options = { 'BUILD_SHARED_LIBS': ['ON', 'OFF'] }
+    default_options = 'BUILD_SHARED_LIBS=OFF'
 
     # Prefer 'exports' over 'source' as we may want to build off a particular branch
     # Can we assume running 'git ls-files' to be safe?
@@ -16,15 +17,17 @@ class usBundleLoaderConan(ConanFile):
 
     def requirements(self):
         """ Declare here your project requirements or configure any of them """
-        self.requires('CppMicroServices/2.99.0@demo/testing', {
-            'US_ENABLE_AUTOLOADING_SUPPORT': 'ON',
-            'US_BUILD_SHARED_LIBS': self.options['BUILD_SHARED_LIBS'],
-        })
-        self.requires('sl_cmake/0.1.0@demo/testing')
-        self.requires('googletest/1.7.0@demo/testing')
+        self.requires('CppMicroServices/3.0.0@azriel91/testing')
+        self.requires('sl_cmake/0.1.0@azriel91/testing')
+        self.requires('googletest/1.7.0@azriel91/stable-1')
+
+    def config(self):
+        cppmicroservices_options = self.options['CppMicroServices']
+        setattr(cppmicroservices_options, 'US_BUILD_SHARED_LIBS', getattr(self.options, 'BUILD_SHARED_LIBS'))
 
     def build(self):
         option_defines = ' '.join("-D%s=%s" % (option, val) for (option, val) in self.options.iteritems())
+
         self.run("cmake . -B{build_dir} {defines}".format(build_dir=self.build_dir, defines=option_defines))
         self.run("cmake --build {build_dir}".format(build_dir=self.build_dir))
 
