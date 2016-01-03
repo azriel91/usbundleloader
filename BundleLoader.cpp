@@ -18,6 +18,7 @@
 
 =============================================================================*/
 
+#include <memory>
 #include <usBundle.h>
 #include <usBundleContext.h>
 
@@ -47,7 +48,7 @@ BundleLoader::BundleLoader(us::BundleContext* frameworkBundleContext, const std:
 BundleLoader::~BundleLoader() {
 }
 
-us::Bundle* BundleLoader::Load(const std::string bundleName) {
+std::shared_ptr<us::Bundle> BundleLoader::Load(const std::string bundleName) {
 #ifdef US_BUILD_SHARED_LIBS
 	return Load(bundleName, this->libraryPath + BundleLoader::DIR_SEP + BundleLoader::LIB_PREFIX + bundleName +
 			BundleLoader::LIB_EXT);
@@ -56,13 +57,13 @@ us::Bundle* BundleLoader::Load(const std::string bundleName) {
 #endif
 }
 
-us::Bundle* BundleLoader::Load(const std::string bundleName, const std::string bundleFilePath) {
-	us::Bundle* bundle = frameworkBundleContext->InstallBundle(bundleFilePath + "/" + bundleName);
+std::shared_ptr<us::Bundle> BundleLoader::Load(const std::string bundleName, const std::string bundleFilePath) {
+	std::shared_ptr<us::Bundle> bundle = frameworkBundleContext->InstallBundle(bundleFilePath + "/" + bundleName);
 	bundle->Start();
 	return bundle;
 }
 
-void BundleLoader::Unload(us::Bundle* bundle) {
+void BundleLoader::Unload(std::shared_ptr<us::Bundle> bundle) {
 	bundle->Stop();
 	bundle->Uninstall();
 }

@@ -21,6 +21,7 @@
 #ifndef BUNDLELOADER_H_
 #define BUNDLELOADER_H_
 
+#include <memory>
 #include <usCoreConfig.h>
 
 #if defined(US_PLATFORM_POSIX)
@@ -80,20 +81,20 @@ public:
 	 *
 	 * @param bundleName the name of the bundle to load
 	 */
-	us::Bundle* Load(const std::string bundleName);
+	std::shared_ptr<us::Bundle> Load(const std::string bundleName);
 	/**
 	 * Load the bundle of the given name, from the specified path. The path may be to an executable or a shared library.
 	 *
 	 * @param bundleName the name of the bundle to load
 	 * @param bundleFilePath the path to the bundle executable or library
 	 */
-	us::Bundle* Load(const std::string bundleName, const std::string bundleFilePath);
+	std::shared_ptr<us::Bundle> Load(const std::string bundleName, const std::string bundleFilePath);
 	/**
 	 * Unloads the given bundle.
 	 *
 	 * @param bundle the bundle to unload
 	 */
-	void Unload(us::Bundle* bundle);
+	void Unload(std::shared_ptr<us::Bundle> bundle);
 };
 
 #endif /* BUNDLELOADER_H_ */

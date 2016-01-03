@@ -21,6 +21,7 @@
 
 #include <cstdio>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include <gtest/gtest.h>
@@ -57,9 +58,9 @@ TEST(UsBundleLoader, UnloadsBundles) {
 	try {
 #ifdef US_BUILD_SHARED_LIBS
 		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
-		us::Bundle* const bundle = bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
+		std::shared_ptr<us::Bundle> const bundle = bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
 #else
-		us::Bundle* const bundle = bundleLoader->Load("TestBundleOne");
+		std::shared_ptr<us::Bundle> const bundle = bundleLoader->Load("TestBundleOne");
 #endif
 		bundleLoader->Unload(bundle);
 
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
 
 	us::FrameworkFactory factory;
-	us::Framework* const framework = factory.NewFramework(std::map<std::string, std::string>());
+	std::shared_ptr<us::Framework> framework = factory.NewFramework(std::map<std::string, std::string>());
 	framework->Start();
 
 #ifdef US_BUILD_SHARED_LIBS
