@@ -1,0 +1,52 @@
+sudo: required
+
+language: cpp
+compiler:
+- gcc
+- clang
+
+before_install:
+# apt update
+- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+- sudo add-apt-repository ppa:h-rayflood/llvm-upper -y # needed for clang 3.6
+- sudo apt-get update -qq
+
+install:
+# gcc 5.2
+- if [ "$CXX" = "g++" ]; then
+    sudo apt-get install -qq gcc-5 g++-5;
+    export CXX="g++" CC="gcc" CXX_VERSION=5.2 CC_VERSION=5.2;
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 90;
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90;
+  fi
+
+# clang 3.6
+- if [ "$CXX" = "clang++" ]; then
+    sudo apt-get install -qq clang-3.6;
+    export CXX="clang++" CC="clang" CXX_VERSION=3.6 CC_VERSION=3.6;
+    sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-3.6 90;
+    sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-3.6 90;
+    sudo update-alternatives --install /usr/bin/clang cc /usr/bin/clang-3.6 90;
+    sudo update-alternatives --install /usr/bin/clang++ c++ /usr/bin/clang++-3.6 90;
+  fi
+
+# cmake 3.4
+- wget --no-check-certificate https://cmake.org/files/v3.4/cmake-3.4.1-Linux-x86_64.sh -O /tmp/cmake-3.4.1-Linux-x86_64.sh
+- chmod +x /tmp/cmake-3.4.1-Linux-x86_64.sh
+- sudo mkdir /usr/lib/cmake
+- sudo /tmp/cmake-3.4.1-Linux-x86_64.sh --skip-license --include-subdir --prefix=/usr/lib/cmake
+- sudo update-alternatives --install /usr/bin/cmake cmake /usr/lib/cmake/cmake-3.4.1-Linux-x86_64/bin/cmake 100
+- export PATH=/usr/lib/cmake/cmake-3.4.1-Linux-x86_64/bin:$PATH
+
+# conan
+- sudo pip install conan
+
+script:
+- conan install --build=missing -o BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -s compiler=$CC -s compiler.version=$CC_VERSION
+- conan build
+- build/bin/usBundleLoader_test_main
+
+env:
+  matrix:
+  - BUILD_SHARED_LIBS=OFF
+  - BUILD_SHARED_LIBS=ON
