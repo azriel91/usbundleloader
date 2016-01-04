@@ -32,7 +32,7 @@
 #include <usGetBundleContext.h>
 
 #include "usBundleLoaderTestConfig.h"
-#include "../BundleLoader.h"
+#include "BundleLoader.h"
 
 #ifndef US_BUILD_SHARED_LIBS
 	#include <usBundleImport.h>

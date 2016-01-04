@@ -1,19 +1,20 @@
 from conans import *
-import subprocess
+import os.path
 
 class usBundleLoaderConan(ConanFile):
     name = 'usBundleLoader'
     version = '0.1.0'
-    settings = ['os', 'compiler', 'build_type', 'arch']
+    settings = ['os', 'arch', 'compiler', 'build_type']
     generators = ['cmake']
+    url = 'https://github.com/azriel91/usbundleloader.git'
     options = { 'BUILD_SHARED_LIBS': ['ON', 'OFF'] }
     default_options = 'BUILD_SHARED_LIBS=OFF'
 
-    # Prefer 'exports' over 'source' as we may want to build off a particular branch
-    # Can we assume running 'git ls-files' to be safe?
-    exports = subprocess.check_output(['git', 'ls-files']).split()
-
+    project_dir = '.' if os.path.exists('src') else self.name.lower()
     build_dir = 'build'
+
+    def source(self):
+        self.run("git clone {url} --depth 1".format(url=self.url))
 
     def requirements(self):
         """ Declare here your project requirements or configure any of them """
@@ -28,11 +29,13 @@ class usBundleLoaderConan(ConanFile):
     def build(self):
         option_defines = ' '.join("-D%s=%s" % (option, val) for (option, val) in self.options.iteritems())
 
-        self.run("cmake . -B{build_dir} {defines}".format(build_dir=self.build_dir, defines=option_defines))
+        self.run("cmake {project_dir} -B{build_dir} {defines}".format(project_dir=self.project_dir,
+                                                                      build_dir=self.build_dir,
+                                                                      defines=option_defines))
         self.run("cmake --build {build_dir}".format(build_dir=self.build_dir))
 
     def package(self):
-        self.copy('*.h', dst='include', src='.')
+        self.copy('*.h', dst='include', src="{project_dir}/include".format(project_dir=self.project_dir))
 
         # Built artifacts
         lib_dir = "{build_dir}/lib".format(build_dir=self.build_dir)
