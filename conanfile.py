@@ -14,6 +14,11 @@ class UsBundleLoaderConan(ConanFile):
 
     build_dir = 'build'
 
+    def imports(self):
+        self.copy("*.dll", dst="bin", src="bin")
+        self.copy("*.dylib*", dst="bin", src="lib")
+        self.copy("*.lib", dst="bin", src="lib")
+
     def requirements(self):
         """ Declare here your project requirements or configure any of them """
         self.requires('CppMicroServices/3.0.0@azriel91/testing')
