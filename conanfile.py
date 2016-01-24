@@ -1,20 +1,18 @@
-from conans import *
-import os.path
+from conans import ConanFile
+import subprocess
 
-class usBundleLoaderConan(ConanFile):
+
+class UsBundleLoaderConan(ConanFile):
     name = 'usBundleLoader'
     version = '0.1.0'
     settings = ['os', 'arch', 'compiler', 'build_type']
     generators = ['cmake']
     url = 'https://github.com/azriel91/usbundleloader.git'
-    options = { 'BUILD_SHARED_LIBS': ['ON', 'OFF'] }
-    default_options = 'BUILD_SHARED_LIBS=OFF'
+    options = {'BUILD_SHARED_LIBS': ['ON', 'OFF']}
+    default_options = 'BUILD_SHARED_LIBS=ON'
+    exports = subprocess.check_output(['git', 'ls-files']).split()
 
-    project_dir = '.' if os.path.exists('src') else self.name.lower()
     build_dir = 'build'
-
-    def source(self):
-        self.run("git clone {url} --depth 1".format(url=self.url))
 
     def requirements(self):
         """ Declare here your project requirements or configure any of them """
@@ -29,13 +27,13 @@ class usBundleLoaderConan(ConanFile):
     def build(self):
         option_defines = ' '.join("-D%s=%s" % (option, val) for (option, val) in self.options.iteritems())
 
-        self.run("cmake {project_dir} -B{build_dir} {defines}".format(project_dir=self.project_dir,
+        self.run("cmake {project_dir} -B{build_dir} {defines}".format(project_dir=self.conanfile_directory,
                                                                       build_dir=self.build_dir,
                                                                       defines=option_defines))
         self.run("cmake --build {build_dir}".format(build_dir=self.build_dir))
 
     def package(self):
-        self.copy('*.h', dst='include', src="{project_dir}/include".format(project_dir=self.project_dir))
+        self.copy('*.h', dst='include', src="{project_dir}/include".format(project_dir=self.conanfile_directory))
 
         # Built artifacts
         lib_dir = "{build_dir}/lib".format(build_dir=self.build_dir)
