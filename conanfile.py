@@ -1,4 +1,5 @@
 from conans import ConanFile
+import os
 import subprocess
 
 
@@ -15,15 +16,16 @@ class UsBundleLoaderConan(ConanFile):
     build_dir = 'build'
 
     def imports(self):
-        self.copy("*.dll", dst="bin", src="bin")
-        self.copy("*.dylib*", dst="bin", src="lib")
-        self.copy("*.lib", dst="bin", src="lib")
+        bin_dir = "{build_dir}{sep}bin".format(build_dir=self.build_dir, sep=os.path.sep)
+        self.copy("*.dll", dst=bin_dir, src="bin")
+        self.copy("*.dylib*", dst=bin_dir, src="lib")
+        self.copy("*.lib", dst=bin_dir, src="lib")
 
     def requirements(self):
         """ Declare here your project requirements or configure any of them """
         self.requires('CppMicroServices/3.0.0@azriel91/testing')
         self.requires('sl_cmake/0.1.0@azriel91/testing')
-        self.requires('googletest/1.7.0@azriel91/stable-1')
+        self.requires('googletest/1.7.0@azriel91/testing')
 
     def config(self):
         cppmicroservices_options = self.options['CppMicroServices']
