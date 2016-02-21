@@ -46,7 +46,8 @@ class UsBundleLoaderConan(ConanFile):
         lib_dir = "{build_dir}/lib".format(build_dir=self.build_dir)
         self.copy('*.so', dst='lib', src=lib_dir)
         self.copy('*.a', dst='lib', src=lib_dir)
-        self.copy('*.lib', dst='lib', src=lib_dir)
+        self.copy('*.lib', dst='lib', src=self.build_dir, keep_path=False)
+        self.copy('*.dll', dst='bin', src=self.build_dir, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ['usBundleLoader']
