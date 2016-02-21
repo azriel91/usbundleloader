@@ -19,22 +19,14 @@
 
 =============================================================================*/
 
-#ifndef USBUNDLELOADERTESTCONFIG_H
-#define USBUNDLELOADERTESTCONFIG_H
+//! [Activator]
+#include <usBundleActivator.h>
+#include <usBundleContext.h>
 
-#include <string>
+class BundleLoaderTestMainActivator : public us::BundleActivator {
+private:
+	void Start(us::BundleContext* context);
+	void Stop(us::BundleContext* context);
+};
 
-#include "SlTestConfig.h"
-
-#define BUNDLE_ONE_LIB_NAME "@CMAKE_SHARED_LIBRARY_PREFIX@TestBundleOne@CMAKE_SHARED_LIBRARY_SUFFIX@"
-#define TEST_BUNDLES_DIR SL_LIB_DIR PATH_SEPARATOR "bundles"
-
-#ifdef US_PLATFORM_POSIX
-	#define TEST_BUNDLE_ONE_DIR TEST_BUNDLES_DIR PATH_SEPARATOR "testBundleOne"
-#else
-	#define TEST_BUNDLE_ONE_DIR SL_LIB_DIR
-#endif
-
-static const std::string BUNDLE_ONE_LIB_PATH = TEST_BUNDLE_ONE_DIR PATH_SEPARATOR BUNDLE_ONE_LIB_NAME;
-
-#endif // USBUNDLELOADERTESTCONFIG_H
+//! [Activator]

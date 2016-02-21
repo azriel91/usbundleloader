@@ -20,21 +20,19 @@
 =============================================================================*/
 
 //! [Activator]
-#include <azriel/cppmicroservices/core/include/usModuleActivator.h>
-#include <azriel/cppmicroservices/core/include/usModuleContext.h>
-
-US_USE_NAMESPACE
+#include <usBundleActivator.h>
+#include <usBundleContext.h>
 
 namespace test {
 
-class TestModuleOneActivator : public ModuleActivator {
+class TestBundleOneActivator : public us::BundleActivator {
 private:
-	void Load(ModuleContext* context) {}
-	void Unload(ModuleContext* context) {}
+	void Start(us::BundleContext* context) {}
+	void Stop(us::BundleContext* context) {}
 };
 
 } /* namespace test */
 
-US_EXPORT_MODULE_ACTIVATOR(test::TestModuleOneActivator)
+US_EXPORT_BUNDLE_ACTIVATOR(test::TestBundleOneActivator)
 
 //! [Activator]

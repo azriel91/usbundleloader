@@ -19,35 +19,53 @@
 
 =============================================================================*/
 
-#include <azriel/cppmicroservices/core/include/usModule.h>
-#include <azriel/cppmicroservices/core/include/usModuleRegistry.h>
-#include <google/gtest/gtest.h>
 #include <cstdio>
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
+#include <gtest/gtest.h>
+#include <usBundle.h>
+#include <usBundleContext.h>
+#include <usFramework.h>
+#include <usFrameworkFactory.h>
+#include <usGetBundleContext.h>
 
 #include "usBundleLoaderTestConfig.h"
+#include "BundleLoader.h"
 
-#ifdef US_BUILD_SHARED_LIBS
-	#include "../BundleLoader.h"
-#else
-	#include <azriel/cppmicroservices/core/include/usModuleImport.h>
-	US_IMPORT_MODULE(CppMicroServices)
-	US_IMPORT_MODULE(TestModuleOne)
-	US_INITIALIZE_STATIC_MODULE(main)
+#ifndef US_BUILD_SHARED_LIBS
+	#include <usBundleImport.h>
+	US_IMPORT_BUNDLE(CppMicroServices)
+	US_IMPORT_BUNDLE(TestBundleOne)
+	US_IMPORT_BUNDLE(main)
 #endif
 
-US_USE_NAMESPACE
+BundleLoader* bundleLoader = nullptr;
 
-TEST(usBundleLoader, LoadsBundles) {
+TEST(UsBundleLoader, LoadsBundles) {
+	try {
+		bundleLoader->Load("TestBundleOne");
+
+		us::BundleContext* const bundleContext = us::GetBundleContext();
+		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") != nullptr);
+	} catch (const std::exception& e) {
+		FAIL() << e.what();
+	}
+}
+
+TEST(UsBundleLoader, UnloadsBundles) {
 	try {
 #ifdef US_BUILD_SHARED_LIBS
-		BundleLoader bundleLoader;
-
-		printf("Loading: '%s'\n", MODULE_ONE_LIB_PATH.c_str());
-		bundleLoader.load(MODULE_ONE_LIB_PATH);
+		printf("Loading: '%s'\n", BUNDLE_ONE_LIB_PATH.c_str());
+		std::shared_ptr<us::Bundle> const bundle = bundleLoader->Load("TestBundleOne", BUNDLE_ONE_LIB_PATH);
+#else
+		std::shared_ptr<us::Bundle> const bundle = bundleLoader->Load("TestBundleOne");
 #endif
+		bundleLoader->Unload(bundle);
 
-		EXPECT_TRUE(ModuleRegistry::GetModule("TestModuleOne") != NULL);
+		us::BundleContext* const bundleContext = us::GetBundleContext();
+		EXPECT_TRUE(bundleContext->GetBundle("TestBundleOne") == nullptr);
 	} catch (const std::exception& e) {
 		FAIL() << e.what();
 	}
@@ -55,5 +73,18 @@ TEST(usBundleLoader, LoadsBundles) {
 
 int main(int argc, char **argv) {
 	testing::InitGoogleTest(&argc, argv);
+
+	us::FrameworkFactory factory;
+	std::shared_ptr<us::Framework> framework = factory.NewFramework(std::map<std::string, std::string>());
+	framework->Start();
+
+#ifdef US_BUILD_SHARED_LIBS
+	bundleLoader = new BundleLoader(framework->GetBundleContext(), TEST_BUNDLE_ONE_DIR);
+	bundleLoader->Load(std::string("main"), std::string(argv[0]));
+#else
+	bundleLoader = new BundleLoader(framework->GetBundleContext(), std::string(argv[0]));
+	bundleLoader->Load(std::string("main"));
+#endif
+
 	return RUN_ALL_TESTS();
 }

@@ -1,20 +1,17 @@
-project(${BII_BLOCK_NAME})
+project(usBundleLoader)
+cmake_minimum_required(VERSION 3.0)
 
-set(BII_LIB_SRC BundleLoader.cpp)
-set(BII_test_main_SRC test/main.cpp)
-usFunctionGenerateModuleInit(BII_test_main_SRC MODULE_NAME main)
+include(conanbuildinfo.cmake)
+conan_basic_setup()
 
-# Actually create targets: executables and libraries.
-ADD_BII_TARGETS()
+find_package(CppMicroServices 3.0.0 CONFIG PATHS ${CONAN_CPPMICROSERVICES_ROOT})
+include(slBundleFunctions)
 
-# Build tests only if this block is not retrieved as a dependency
-if(NOT ${BII_IS_DEP})
-  add_subdirectory(test)
+# === Targets === #
+sl_create_bundle(${PROJECT_NAME}
+                 SOURCES src/BundleLoader.cpp
+                 RESOURCES manifest.json)
+sl_generate_and_include_bundle_header(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 
-  set_property(TARGET ${BII_test_main_TARGET} APPEND PROPERTY COMPILE_DEFINITIONS US_MODULE_NAME=main)
-
-  if (NOT ${BUILD_SHARED_LIBS})
-    target_link_libraries(${BII_test_main_TARGET} PRIVATE TestModuleOne)
-    target_compile_definitions(${BII_test_main_TARGET} PRIVATE US_STATIC_MODULE)
-  endif()
-endif()
+sl_include_test_dir()

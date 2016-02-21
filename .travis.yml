@@ -6,33 +6,47 @@ compiler:
 - clang
 
 before_install:
-- git checkout $TRAVIS_BRANCH
-
-- if [ $(bii-support/travis/git/is_last_commit_travis.sh) = "true" ] ; then exit 0 ; fi
-- bii-support/travis/git/configure.sh
+# apt update
+- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+- sudo add-apt-repository ppa:h-rayflood/llvm-upper -y # needed for clang 3.6
+- sudo apt-get update -qq
 
 install:
-- bii-support/travis/install/all-headless.sh
+# gcc 5.2
+- if [ "$CXX" = "g++" ]; then
+    sudo apt-get install -qq gcc-5 g++-5;
+    export CXX="g++" CC="gcc" CXX_VERSION=5.2 CC_VERSION=5.2;
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 90;
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90;
+  fi
 
-- export TRAVIS_CXX=$CXX
+# clang 3.6
+- if [ "$CXX" = "clang++" ]; then
+    sudo apt-get install -qq clang-3.6;
+    export CXX="clang++" CC="clang" CXX_VERSION=3.6 CC_VERSION=3.6;
+    sudo update-alternatives --install /usr/bin/cc cc /usr/bin/clang-3.6 90;
+    sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-3.6 90;
+    sudo update-alternatives --install /usr/bin/clang cc /usr/bin/clang-3.6 90;
+    sudo update-alternatives --install /usr/bin/clang++ c++ /usr/bin/clang++-3.6 90;
+  fi
+
+# cmake 3.4
+- wget --no-check-certificate https://cmake.org/files/v3.4/cmake-3.4.1-Linux-x86_64.sh -O /tmp/cmake-3.4.1-Linux-x86_64.sh
+- chmod +x /tmp/cmake-3.4.1-Linux-x86_64.sh
+- sudo mkdir /usr/lib/cmake
+- sudo /tmp/cmake-3.4.1-Linux-x86_64.sh --skip-license --include-subdir --prefix=/usr/lib/cmake
+- sudo update-alternatives --install /usr/bin/cmake cmake /usr/lib/cmake/cmake-3.4.1-Linux-x86_64/bin/cmake 100
+- export PATH=/usr/lib/cmake/cmake-3.4.1-Linux-x86_64/bin:$PATH
+
+# conan
+- sudo pip install conan
 
 script:
-- bii-support/linux/build/default.sh
-- valgrind --leak-check=full "bin/${BII_USER}_${BLOCK_NAME}_test_main"
-
-after_success:
-- bii-support/travis/publish/biicode.sh
+- conan install --build=missing -o BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -s compiler=$CC -s compiler.version=$CC_VERSION
+- conan build
+- build/bin/usBundleLoader_test_main
 
 env:
-  global:
-  - USER_EMAIL=azriel91@gmail.com
-  - USER_NAME="azriel"
-  - BLOCK_NAME=usbundleloader
-  - BII_USER=azriel
-  # BII_PASSWORD
-  - secure: "Ti6S0ZrXRZAbavhwoaK8JXJ5BzZ5GEckFaaDjFxhOcg+LvxMaAO9w/l38jOUimQ94U+kg73ccuh2ZZgSu8MMNjEDefVb855BCl+kzmTW7QQ61mMCq5WE51kiTFug56WVXgvh1oarSRkdeOM9dS0I3MOJIFQt2dQvIcwGpAqBOto="
-  # GITHUB_TOKEN
-  - secure: "aO4zaAI81jlakJFynpO6/2nJ2WlMmMPypIQDV7o13zV78TSXsV+3+qSjhU+TXfjQXDxl8evT4ggTkZTHPyu9AExZusciA3xOD/0tdtYr0F9N9rB/sPaQLpPsHY/aWBtApqASKuR/4gHc404CCX4SGn68Kpp8d9CzdlHpLZi6xN4="
   matrix:
   - BUILD_SHARED_LIBS=OFF
   - BUILD_SHARED_LIBS=ON
