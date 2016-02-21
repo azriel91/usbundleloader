@@ -25,7 +25,7 @@ class UsBundleLoaderConan(ConanFile):
         """ Declare here your project requirements or configure any of them """
         self.requires('CppMicroServices/3.0.0@azriel91/testing')
         self.requires('sl_cmake/0.1.0@azriel91/testing')
-        self.requires('googletest/1.7.0@azriel91/testing')
+        self.requires('googletest/1.7.0@azriel91/stable-3')
 
     def config(self):
         cppmicroservices_options = self.options['CppMicroServices']
